@@ -42,6 +42,30 @@ document.addEventListener("DOMContentLoaded", () => {
           details.participants.forEach(email => {
             const li = document.createElement("li");
             li.textContent = email;
+            // Ajout de l'icône de suppression
+            const deleteIcon = document.createElement("span");
+            deleteIcon.className = "delete-icon";
+            deleteIcon.title = "Désinscrire ce participant";
+            deleteIcon.innerHTML = "&#128465;"; // Icône poubelle Unicode
+            deleteIcon.addEventListener("click", async (e) => {
+              e.stopPropagation();
+              if (confirm(`Désinscrire ${email} de ${name} ?`)) {
+                try {
+                  const response = await fetch(`/activities/${encodeURIComponent(name)}/unregister?email=${encodeURIComponent(email)}`, {
+                    method: "POST"
+                  });
+                  const result = await response.json();
+                  if (response.ok) {
+                    fetchActivities();
+                  } else {
+                    alert(result.detail || "Erreur lors de la désinscription.");
+                  }
+                } catch (error) {
+                  alert("Erreur réseau lors de la désinscription.");
+                }
+              }
+            });
+            li.appendChild(deleteIcon);
             participantsList.appendChild(li);
           });
         } else {
